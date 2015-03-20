@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       	<meta charset="UTF-8">
+
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1, user-scalable=1" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+   	 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <title>Fast Race</title>
+        <!--<body style=" padding-left: 0; padding-right: 0;margin-left: auto; margin-right: auto; 
+        display: block; width: 25px">-->
+        <style>
+		        body {
+						display: block;
+						position: absolute;
+						margin: 0;
+						top: 0;
+						bottom: 0;
+						left: 0;
+						right: 0;
+						/*border: 5px solid #000;
+		        		background-image: url("res/fondo.png");*/
+		        }
+		        canvas {
+		        	display: block;
+					position: absolute;
+					margin: auto;
+					top: 0;
+					bottom: 0;
+					left: 0;
+					right: 0;
+		            background: #fff;
+		            border: 5px solid #000;
+		        }
+		        audio {
+		            display: none;
+		        }
+    		</style>
+    	
+        <script src="js/lib/enchant.js"></script>
+         	
+        <script>
+        // Start enchant.js
+		enchant();
+
+		window.onload = function() {
+		    // Starting point
+
+		    var game = new Game(340, 600);
+
+		    game.preload('res/material.png','res/androides.png','res/appleo.png','res/Hit.mp3',
+		    	'res/bgm.mp3');
+		    game.fps = 30;
+		    game.scale = 1;
+		    game.onload = function() {
+		        // Once Game finish loading
+		        console.log("Funciona!!!1uno");
+		        var scene = new Inicio();
+		        game.pushScene(scene);
+		    }
+		    window.scrollTo(0,0);
+		    game.start();
+
+		   
+		};
+		/**
+		 * Inicio
+		 */
+		var Inicio = Class.create(Scene, {
+
+		    initialize: function() {
+		        var Iniciolabel, pista, penguin, juego, tap1, tap2;
+		        Scene.apply(this);
+		        /*this.backgroundColor = '#D32F2F';*/
+		        juego = Game.instance;
+
+		        InicioLabel = new Label("ANDROID<br>VS<br>APPLE");
+		        InicioLabel.x = 10;
+		        InicioLabel.y = 70;
+		        InicioLabel.color = 'white';
+		        InicioLabel.font = '50px Courier New';
+		        InicioLabel.textAlign = 'center';
+                tap1 = new Label("<--<br>TAP");
+                tap1.x = -70;
+                tap1.y = 450;
+                tap1.color = 'white';
+                tap1.font = '20px Courier New';
+                tap1.textAlign = 'center';
+                tap2 = new Label("--><br>TAP");
+                tap2.x = 250;
+                tap2.y = 450;
+                tap2.color = 'white';
+                tap2.font = '20px Courier New';
+                tap1.textAlign = 'center';
+		        pista = new Sprite(350, 700);
+		        pista.image = juego.assets['res/material.png'];
+                penguin = new Penguin();
+                penguin.x = juego.width/2 - penguin.width/2;
+                penguin.y = 450;
+
+
+		        this.addChild(pista);
+		        this.addChild(InicioLabel);
+                this.addChild(penguin);
+                this.addChild(tap1);
+                this.addChild(tap2);
+
+
+				console.log("hola");
+		        this.addEventListener(Event.TOUCH_START, this.touchToRestart);
+
+		    },
+
+		    touchToRestart: function(evt) {
+		        var game = Game.instance;
+		        game.replaceScene(new SceneGame());
+		    }
+		})
+		/**
+		 * SceneGame
+		 */
+		var SceneGame = Class.create(Scene, {
+		    /**
+		     * The main gameplay scene.
+		     */
+		    initialize: function() {
+		        var game, label, bg, penguin, iceGroup;
+
+		        // Call superclass constructor
+		        Scene.apply(this);
+
+		        // Access to the game singleton instance
+		        game = Game.instance;
+
+		        label = new Label('SCORE<br>0');
+		        label.x = 9;
+		        label.y = 32;
+		        label.color = 'white';
+		        label.font = '50px Courier New';
+		        label.textAlign = 'center';
+		        //label._style.textShadow ="-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
+		        this.scoreLabel = label;
+
+		        bg = new Sprite(350, 600);
+		        bg.image = game.assets['res/material.png'];
+
+		        penguin = new Penguin();
+		        penguin.x = game.width/2 - penguin.width/2;
+		        penguin.y = 450;
+		        this.penguin = penguin;
+
+		        iceGroup = new Group();
+		        this.iceGroup = iceGroup;
+
+		        this.addChild(bg);
+		        this.addChild(iceGroup);
+		        this.addChild(penguin);
+		        this.addChild(label);
+
+		        this.addEventListener(Event.TOUCH_START,this.handleTouchControl);
+		        this.addEventListener(Event.ENTER_FRAME,this.update);
+
+		        // Instance variables
+		        this.generateIceTimer = 0;
+		        this.scoreTimer = 0;
+		        this.score = 0;
+
+		        this.bgm = game.assets['res/bgm.mp3']; // Add this line
+
+		        // Start BGM
+		        this.bgm.play();
+		    },
+
+		    handleTouchControl: function (evt) {
+		        var laneWidth, lane;
+		        laneWidth = 320/3;
+		        lane = Math.floor(evt.x/laneWidth);
+		        lane = Math.max(Math.min(2,lane),0);
+		        this.penguin.switchToLaneNumber(lane);
+		    },
+
+		    update: function(evt) {
+		        // Score increase as time pass
+		        this.scoreTimer += evt.elapsed * 0.0008;
+		        if(this.scoreTimer >= 0.5)
+		        {
+		            this.setScore(this.score + 1);
+		            this.scoreTimer -= 0.5;
+		        }
+
+		        // Check if it's time to create a new set of obstacles
+		        this.generateIceTimer += evt.elapsed * 0.001;
+		        if(this.generateIceTimer >= 0.5)
+		        {
+		            var ice;
+		            this.generateIceTimer -= 0.5;
+		            ice = new Ice(Math.floor(Math.random()*3));
+		            this.iceGroup.addChild(ice);
+		        }
+
+		        // Check collision
+		       for (var i = this.iceGroup.childNodes.length - 1; i >= 0; i--) {
+		            var ice;
+		            ice = this.iceGroup.childNodes[i];
+		            if(ice.intersect(this.penguin)){
+		                var game;
+		                game = Game.instance;
+		                game.assets['res/Hit.mp3'].play();
+		                this.iceGroup.removeChild(ice);
+		                this.bgm.stop();
+		                game.replaceScene(new SceneGameOver(this.score));
+		                break;
+		            }
+		        }
+
+		        // Loop BGM
+		        if( this.bgm.currentTime >= this.bgm.duration ){
+		            this.bgm.play();
+		        }
+		    },
+
+		    setScore: function (value) {
+		        this.score = value;
+		        this.scoreLabel.text = 'SCORE<br>' + this.score;
+		    }
+		});
+
+		/**
+		 * Penguin
+		 */
+		 var Penguin = Class.create(Sprite, {
+		    /**
+		     * The player character.
+		     */
+		    initialize: function() {
+		        // Call superclass constructor
+		        Sprite.apply(this,[45, 43]);
+		        this.image = Game.instance.assets['res/androides.png'];
+		        this.animationDuration = 0;
+		        this.addEventListener(Event.ENTER_FRAME, this.updateAnimation);
+		    },
+
+		    updateAnimation: function (evt) {
+		        this.animationDuration += evt.elapsed * 0.001;
+		        if(this.animationDuration >= 0.25)
+		        {
+		            this.frame = (this.frame + 1) % 2;
+		            this.animationDuration -= 0.20;
+		        }
+		    },
+
+		    switchToLaneNumber: function(lane){
+		        var targetX = 160 - this.width/2 + (lane-1)*90;
+		        this.x = targetX;
+		    }
+		});
+
+		 /**
+		 * APPLE
+		 */
+		var Ice = Class.create(Sprite, {
+		    /**
+		     * The obstacle that the penguin must avoid
+		     */
+		    initialize: function(lane) {
+		        // Call superclass constructor
+		        Sprite.apply(this,[48, 49]);
+		        this.image  = Game.instance.assets['res/appleo.png'];
+		        this.rotationSpeed = 0;
+		        this.setLane(lane);
+		        this.addEventListener(Event.ENTER_FRAME, this.update);
+		    },
+
+		    setLane: function(lane) {
+		        var game, distance;
+		        game = Game.instance;
+		        distance = 90;
+
+		        this.rotationSpeed = Math.random() * 100 - 50;
+
+		        this.x = game.width/2 - this.width/2 + (lane - 1) * distance;
+		        this.y = -this.height;
+		        this.rotation = Math.floor( Math.random() * 350 );
+		    },
+
+		    update: function(evt) {
+		        var ySpeed, game;
+
+		        game = Game.instance;
+		        ySpeed = 1000;
+
+		        this.y += ySpeed * evt.elapsed * 0.001;
+		        this.rotation += this.rotationSpeed * evt.elapsed * 0.001;
+		        if(this.y > game.height)
+		        {
+		            this.parentNode.removeChild(this);
+		        }
+		    }
+		});
+
+		/**
+		 * SceneGameOver
+		 */
+		var SceneGameOver = Class.create(Scene, {
+		    initialize: function(score) {
+		        var gameOverLabel, scoreLabel, taplabel, fondoperder;
+		        Scene.apply(this);
+		        //this.backgroundColor = '#448AFF';
+
+            hola = Game.instance;
+
+            fondoperder = new Sprite(350, 700);
+            fondoperder.image = hola.assets['res/material.png'];
+
+		        gameOverLabel = new Label("GAME OVER");
+		        gameOverLabel.x = 10;
+		        gameOverLabel.y = 50;
+		        gameOverLabel.color = 'white';
+		        gameOverLabel.font = '50px Courier New';
+		        gameOverLabel.textAlign = 'center';
+
+		        scoreLabel = new Label('SCORE<br>' + score);
+		        scoreLabel.x = 10;
+		        scoreLabel.y = 150;
+		        scoreLabel.color = 'white';
+		        scoreLabel.font = '80px Courier New';
+		        scoreLabel.textAlign = 'center';
+
+		        taplabel = new Label("Tap to Restart");
+		        taplabel.x = 10;
+		        taplabel.y = 370;
+		        taplabel.color = 'white';
+		        taplabel.font = '50px Courier New';
+		        taplabel.textAlign = 'center';
+
+
+            this.addChild(fondoperder);
+		        this.addChild(gameOverLabel);
+		        this.addChild(scoreLabel);
+		        this.addChild(taplabel);
+
+
+		        this.addEventListener(Event.TOUCH_START, this.touchToRestart);
+
+		    },
+
+		   touchToRestart: function(evt) {
+		        var game = Game.instance;
+		        game.replaceScene(new Inicio());
+		    }
+		});
+
+        </script>
+		<!--<script src="sprite.js"></script>-->
+
+	 
+
+
+    </head>
+    <!--<body style="margin: auto;">
+    </body>-->
+</html>
