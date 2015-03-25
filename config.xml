@@ -52,7 +52,7 @@
   <!--Icon-->
 
   <!--Android-->
-  <icon src="icon.png"/>
+  <icon src="www/res/icon.png"/>
   <!--<icon src="www/res/icon/android/icon-36-ldpi.png" gap:platform="android" gap:qualifier="ldpi"/>-->
   <icon src="www/res/icon/android/icon-48-mdpi.png" gap:platform="android" gap:qualifier="mdpi"/>
   <icon src="www/res/icon/android/icon-72-hdpi.png" gap:platform="android" gap:qualifier="hdpi"/>
@@ -76,7 +76,7 @@
   <!-- Spotlight Icon -->
   <icon src="icon-40.png" gap:platform="ios" width="40" height="40" />
   <icon src="icon-40@2x.png" gap:platform="ios" width="80" height="80" />
-  
+
   <!--Web OS-->
   <icon src="www/res/icon/webos/icon-64.png" gap:platform="webos"/>
   <!--Windows Phone-->
