@@ -46,10 +46,15 @@
 		window.onload = function() {
 		    // Starting point
 
-		    var game = new Game(340, 600);
+		    var game = new Game(360, 600);
 
-		    game.preload('res/material.png','res/androides.png','res/appleo.png','res/Hit.mp3',
-		    	'res/bgm.mp3');
+		    game.preload(
+		    	'res/material.png',
+ 				'res/androides.png',
+ 				'res/appleo.png',
+ 				'res/point.ogg',
+ 				'res/Hit.ogg',
+		    	'res/bgm.ogg');
 		    game.fps = 30;
 		    game.scale = 1;
 		    game.onload = function() {
@@ -75,8 +80,8 @@
 		        juego = Game.instance;
 
 		        InicioLabel = new Label("ANDROID<br>VS<br>APPLE");
-		        InicioLabel.x = 10;
-		        InicioLabel.y = 70;
+		        InicioLabel.x = 15;
+		        InicioLabel.y = 100;
 		        InicioLabel.color = 'white';
 		        InicioLabel.font = '50px Courier New';
 		        InicioLabel.textAlign = 'center';
@@ -133,7 +138,7 @@
 		        game = Game.instance;
 
 		        label = new Label('SCORE<br>0');
-		        label.x = 9;
+		        label.x = 15;
 		        label.y = 32;
 		        label.color = 'white';
 		        label.font = '50px Courier New';
@@ -165,7 +170,7 @@
 		        this.scoreTimer = 0;
 		        this.score = 0;
 
-		        this.bgm = game.assets['res/bgm.mp3']; // Add this line
+		        this.bgm = game.assets['res/bgm.ogg']; // Add this line
 
 		        // Start BGM
 		        this.bgm.play();
@@ -179,6 +184,7 @@
 		        this.penguin.switchToLaneNumber(lane);
 		    },
 
+
 		    update: function(evt) {
 		        // Score increase as time pass
 		        this.scoreTimer += evt.elapsed * 0.0008;
@@ -186,6 +192,7 @@
 		        {
 		            this.setScore(this.score + 1);
 		            this.scoreTimer -= 0.5;
+
 		        }
 
 		        // Check if it's time to create a new set of obstacles
@@ -198,6 +205,7 @@
 		            this.iceGroup.addChild(ice);
 		        }
 
+
 		        // Check collision
 		       for (var i = this.iceGroup.childNodes.length - 1; i >= 0; i--) {
 		            var ice;
@@ -205,7 +213,7 @@
 		            if(ice.intersect(this.penguin)){
 		                var game;
 		                game = Game.instance;
-		                game.assets['res/Hit.mp3'].play();
+		                game.assets['res/Hit.ogg'].play();
 		                this.iceGroup.removeChild(ice);
 		                this.bgm.stop();
 		                game.replaceScene(new SceneGameOver(this.score));
@@ -222,6 +230,7 @@
 		    setScore: function (value) {
 		        this.score = value;
 		        this.scoreLabel.text = 'SCORE<br>' + this.score;
+		        
 		    }
 		});
 
@@ -298,8 +307,8 @@
 		    }
 		});
 
-		/**
-		 * SceneGameOver
+		/*
+		 SceneGameOver
 		 */
 		var SceneGameOver = Class.create(Scene, {
 		    initialize: function(score) {
@@ -307,27 +316,27 @@
 		        Scene.apply(this);
 		        //this.backgroundColor = '#448AFF';
 
-            hola = Game.instance;
+	            hola = Game.instance;
 
-            fondoperder = new Sprite(350, 700);
-            fondoperder.image = hola.assets['res/material.png'];
+	            fondoperder = new Sprite(350, 700);
+	            fondoperder.image = hola.assets['res/material.png'];
 
 		        gameOverLabel = new Label("GAME OVER");
-		        gameOverLabel.x = 10;
+		        gameOverLabel.x = 15;
 		        gameOverLabel.y = 50;
 		        gameOverLabel.color = 'white';
 		        gameOverLabel.font = '50px Courier New';
 		        gameOverLabel.textAlign = 'center';
 
 		        scoreLabel = new Label('SCORE<br>' + score);
-		        scoreLabel.x = 10;
+		        scoreLabel.x = 15;
 		        scoreLabel.y = 150;
 		        scoreLabel.color = 'white';
 		        scoreLabel.font = '80px Courier New';
 		        scoreLabel.textAlign = 'center';
 
 		        taplabel = new Label("Tap to Restart");
-		        taplabel.x = 10;
+		        taplabel.x = 15;
 		        taplabel.y = 370;
 		        taplabel.color = 'white';
 		        taplabel.font = '50px Courier New';
